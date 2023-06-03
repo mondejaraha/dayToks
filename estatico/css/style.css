@@ -1,0 +1,27 @@
+body {
+    margin: 10px 30px;
+}
+
+.main-pujas {
+    display: grid;
+    grid-template-columns: 70% 30%;
+}
+
+.container-imagen {
+    display: flex;
+    align-items: center;
+    align-content: space-around;
+    justify-content: center;
+    border: 2px solid black;
+}
+
+.container-puja {
+    display: flex;
+    align-items: center;
+    row-gap: 20px;
+    border: 2px solid black;
+}
+
+footer{
+    margin-top: 30px;
+}
