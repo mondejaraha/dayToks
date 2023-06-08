@@ -1,5 +1,7 @@
 import Web3 from "web3";
 import subastasArtifact from "../../build/contracts/Subastas.json";
+//import { Bee, BeeDebug } from '@ethersphere/bee-js';
+
 
 const App = {
   web3: null,
@@ -78,9 +80,9 @@ const App = {
     let bidAmountinEther = document.getElementById("bidAmount").value;
     console.log("token id: ", tokenId);
     console.log("bid amount: ", bidAmountinEther);
-    
+
     const { placeBid } = this.subastasContract.methods;
-    let result = await placeBid(tokenId).send({ 
+    let result = await placeBid(tokenId).send({
       from: this.account,
       value: this.web3.utils.toWei(bidAmountinEther, "ether")
     });
@@ -90,7 +92,7 @@ const App = {
   transferBalance: async function () {
     let amountToTransfer = document.getElementById("").value;
     const { transferBalance } = this.subastasContract.methods;
-    let result = await transferBalance(this.web3.utils.toWei(amountToTransfer, "ether")).send({ 
+    let result = await transferBalance(this.web3.utils.toWei(amountToTransfer, "ether")).send({
       from: this.account
     });
     console.log("Resultado transacción", result);
@@ -107,6 +109,22 @@ const App = {
     const deadline = await getDeadline(2).call();
     const date = new Date(deadline * 1000);
     console.log("Deadline:", date);
+  },
+
+  showBee: async function () {
+    const Bee = window.BeeJs.Bee;
+    const bee = new Bee('http://localhost:1635');
+    // Be aware, this creates on-chain transactions that spend Eth and BZZ!
+    //const response = await bee.uploadData("HOLA");
+    
+
+    //const postageBatchId = await bee.createPostageBatch("100", 17);
+    const postageBatchId = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+    const result = await bee.uploadData(postageBatchId, "Bee is awesome!")
+    //const uploadResult = await bee.uploadData(batchId, "Bee is awesome!")
+    //const data = await bee.downloadData(uploadResult.reference)
+    //console.log(data.text()) // prints 'Bee is awesome!'
+    console.log('Text uploaded:', result);
   },
 
   setStatus: function (message) {
@@ -140,26 +158,6 @@ window.addEventListener("load", function () {
 });
 
 
-const { Bee, BeeDebug } = require("@ethersphere/bee-js");
 
-async function main() {
-  const bee = new Bee("http://localhost:1633"); // Replace with the appropriate Bee node URL
-  const beeDebug = new BeeDebug("http://localhost:1635"); // Replace with the appropriate Bee Debug node URL
 
-  try {
-    const fileData = "Hello, Bee DevSwarm!"; // Contents of the file
-
-    // Upload file
-    const response = await bee.uploadFile(fileData);
-    console.log("File uploaded. Reference:", response.reference);
-
-    // Retrieve chunk
-    const chunkData = await beeDebug.downloadChunk(response.reference);
-    console.log("Chunk retrieved. Data:", chunkData);
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
-
-main();
 
