@@ -22,40 +22,23 @@ const App = {
         deployedNetwork.address,
       );
 
-      
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+      this.getConnectedAccount();
 
-      //console.log(this.subastasContract);
-      //console.log(this.meta);
-      alert("HOLA");
-      this.mostrarCuenta();
+      this.showBee();
+
       this.getTotalBalance();
-      //this.showMinter();
-      //this.getHighestBidder();
-      //this.getDeadLine();
-      //this.getConnectedAccount();
+      this.showMinter();
 
-      // get accounts
-      //const accounts = await web3.eth.getAccounts();
-      //this.account = accounts[0];
-      //console.log(accounts);
-
-      //this.refreshBalance();
-      
     } catch (error) {
-      console.error("Could not connect to contract or chain.");
+      console.error("Could not connect to contract or chain.", error);
     }
-  },
-
-  mostrarCuenta: async function () {
-    const { getMinter } = this.subastasContract.methods;
-    const minter = await getMinter().call();
-    console.log("Este es el minter:", minter);
   },
 
   showMinter: async function () {
     const { getMinter } = this.subastasContract.methods;
     const minter = await getMinter().call();
-    console.log(minter);
+    console.log("Este es el minter:", minter);
   },
 
   getTotalBalance: async function () {
@@ -68,14 +51,37 @@ const App = {
     const accounts = await ethereum.request({ method: 'eth_accounts' });
     if (this.account != accounts[0]) {
       this.account = accounts[0];
-      console.log('Total accounts:', accounts.length, 'First account:', this.account);
+      this.setAccount(this.account);
+    }
+    else {
+      this.setAccount("NOT CONNECTED");
     }
   },
 
+  generateNFT: async function () {
+    //generar texto
+    //recuperar imagen
+
+    //almacenar imagen
+    const { getTotalBids } = this.subastasContract.methods;
+    let newTokenId = parseInt(await getTotalBids().call()) + 1;
+    document.getElementById("input_idtoken").value = newTokenId;
+    document.getElementById("testimage").src = "img/token" + newTokenId + ".jpg";
+    document.getElementById("divCrearSubasta").style = "display:block";
+
+  },
+
   createBid: async function () {
+    let idToken = parseInt(document.getElementById("input_idtoken").value);
+    let price = document.getElementById("price").value;
+    let priceWei = this.web3.utils.toWei(price, "ether");
+
     const { createBid } = this.subastasContract.methods;
-    let result = await createBid(1).send({ from: this.account });
+    let result = await createBid(idToken, priceWei).send({ from: this.account });
     console.log("Resultado transacción", result);
+    this.refreshBidPage(idToken);
+    document.getElementById("divCrearSubasta").style = "display:none";
+    alert("Subasta creada");
   },
 
   placeBid: async function () {
@@ -90,11 +96,21 @@ const App = {
       value: this.web3.utils.toWei(bidAmountinEther, "ether")
     });
     console.log("Resultado transacción", result);
-    //refreshBidPage();
+    this.refreshBidPage(tokenId);
   },
 
-  refreshBidPage: async function () {
+  refreshBidPage: async function (idToken) {
+    document.getElementById("input_tokenId").value = idToken;
 
+    const date = await this.getDeadLine(idToken);
+    document.getElementById("input_deadline").value = date;
+
+    const highestBid = await this.getHighestBid(idToken);
+    document.getElementById("input_highest_bid").value = this.web3.utils.fromWei(highestBid, "ether") + " ETH";
+
+    document.getElementById("imagenPuja").src = "img/token" + idToken + ".jpg";
+
+    document.getElementById("input_bid").value = "";
   },
 
   transferBalance: async function () {
@@ -106,22 +122,29 @@ const App = {
     console.log("Resultado transacción", result);
   },
 
-  getHighestBidder: async function () {
+  getHighestBidder: async function (idToken) {
     const { getHighestBidder } = this.subastasContract.methods;
-    const highestBidder = await getHighestBidder(2).call();
-    console.log("Pujador ganando:", highestBidder);
+    const highestBidder = await getHighestBidder(idToken).call();
+    return highestBidder;
   },
 
-  getDeadLine: async function () {
+  getHighestBid: async function (idToken) {
+    const { getHighestBid } = this.subastasContract.methods;
+    const highestBid = await getHighestBid(idToken).call();
+    return highestBid;
+  },
+
+  getDeadLine: async function (idToken) {
     const { getDeadline } = this.subastasContract.methods;
-    const deadline = await getDeadline(2).call();
+    const deadline = await getDeadline(idToken).call();
     const date = new Date(deadline * 1000);
-    console.log("Deadline:", date);
+    return date;
   },
 
   showBee: async function () {
+    alert("HOLA");
     const Bee = window.BeeJs.Bee;
-    const bee = new Bee('http://localhost:1635');
+    const bee = new Bee('http://localhost:1633');
     // Be aware, this creates on-chain transactions that spend Eth and BZZ!
     //const response = await bee.uploadData("HOLA");
 
@@ -135,24 +158,36 @@ const App = {
     console.log('Text uploaded:', result);
   },
 
-  setStatus: function (message) {
-    const status = document.getElementById("status");
+  setAccount: function (message) {
+    const status = document.getElementById("address_account");
     status.innerHTML = message;
   },
 
-  showBid: async function (t) {
-    if (n.length && n.parent().hasClass("tab"))
-      if (i.hasClass("disabled")) t.preventDefault();
-      else if (!n.attr("target")) {
-        this.$activeTabLink.removeClass("active");
-        var s = this.$content;
-        this.$activeTabLink = n, this.$content = a(M.escapeHash(n[0].hash)), this.$tabLinks = this.$el.children("li.tab").children("a"), this.$activeTabLink.addClass("active");
-        var o = this.index;
-        this.index = Math.max(this.$tabLinks.index(n), 0), this.options.swipeable ? this._tabsCarousel && this._tabsCarousel.set(this.index, function () {
-          "function" == typeof e.options.onShow && e.options.onShow.call(e, e.$content[0])
-        }) : this.$content.length && (this.$content[0].style.display = "block", this.$content.addClass("active"), "function" == typeof this.options.onShow && this.options.onShow.call(this, this.$content[0]), s.length && !s.is(this.$content) && (s[0].style.display = "none", s.removeClass("active"))), this._setTabsAndTabWidth(), this._animateIndicator(o), t.preventDefault()
+  showBid: async function (idToken) {
+    //let tabs = document.getElementsByTagName("section");
+    let inicio = document.getElementById("inicio");
+    inicio.classList.remove("active");
+    inicio.style.display = "none";
 
-      }
+    let pujar = document.getElementById("pujar");
+    pujar.classList.add("active");
+    pujar.style.display = "block";
+
+
+    let tabs = document.getElementsByClassName("tab");
+    tabs[0].children[0].classList.remove("active");
+    tabs[1].children[0].classList.add("active");
+
+    document.getElementsByClassName("indicator")[0].remove;
+
+    const clickEvent = new MouseEvent("click", {
+      bubbles: true,
+      cancelable: false,
+      composed: true
+    });
+
+    this.refreshBidPage(idToken);
+
   },
 };
 
@@ -174,10 +209,13 @@ window.addEventListener("load", function () {
   }
 
   window.ethereum.on('accountsChanged', function (accounts) {
-    App.setStatus(accounts);
+    App.setAccount(accounts);
   })
+
   App.start();
 });
+
+
 
 
 

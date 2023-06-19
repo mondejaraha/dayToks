@@ -13,7 +13,7 @@
     <!--Import materialize.css-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <!-- Compiled and minified JavaScript -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css" crossorigin="anonymous">
 </head>
 
 
@@ -60,7 +60,7 @@
                     <p>Consiga DAYTOK1 en propiedad</p>
                 </div>
                 <div class="card-action right-align">
-                    <a onclick="App.showBid()" class="colorBtn waves-effect waves-light btn"><i
+                    <a onclick="App.refreshTotalBalance()" class="colorBtn waves-effect waves-light btn"><i
                             class="material-icons left">send</i>Ir a la subasta</a>
                 </div>
             </div>
@@ -154,13 +154,6 @@
                         <article class="col s12">
                             La puja finaliza:
                             <div class="input-field inline negrita">
-                                <input id="input_tokenId" type="text" class="" disabled>
-                                <label for="input_tokenId">1</label>
-                            </div>
-                        </article>
-                        <article class="col s12">
-                            La puja finaliza:
-                            <div class="input-field inline negrita">
                                 <input id="input_deadline" type="text" class="" disabled>
                                 <label for="input_deadline">15/06/2023 10:24</label>
                             </div>
@@ -176,11 +169,11 @@
                     <div class="card-action">
                         <div class="row">
                             <div class="input-field col s6">
-                                <input placeholder="Introduce la cantidad" id="input_bid" type="text" class="validate">
-                                <label for="input_bid">Haz tu puja. Cantidad en ETH</label>
+                                <input placeholder="Introduce la cantidad" id="first_name" type="text" class="validate">
+                                <label for="first_name">Haz tu puja. Cantidad en ETH</label>
                             </div>
                             <div class="col s6 margintop20">
-                                <a onclick="App.placeBid()" class="waves-effect waves-light btn colorBtn">
+                                <a class="waves-effect waves-light btn colorBtn">
                                     <i class="material-icons left">payments</i>Enviar puja
                                 </a>
                             </div>
@@ -273,8 +266,8 @@
     <script>
         $(document).ready(function () {
             $('.tabs').tabs();
-            $('.collapsible').collapsible();
-            $('.materialboxed').materialbox();  
+            //$('.collapsible').collapsible();
+            $('.materialboxed').materialbox();
         });
     </script>
 </body>
