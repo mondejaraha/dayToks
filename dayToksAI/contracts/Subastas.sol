@@ -14,7 +14,7 @@ contract Subastas{
     
     struct Bid {
         uint id_bid;
-        uint256 highest_bid;
+        uint highest_bid;
         address highest_bidder;
         address daytokNFT;
         uint deadline;
@@ -48,7 +48,7 @@ contract Subastas{
     // @dev Only if a bid is not active
     // @param tokenId nft identifier
     // @return Transaction execution status
-    function createBid(uint tokenId, uint256 price) public returns (bool){
+   function createBid(uint tokenId, uint256 price) public returns (bool){
         require(msg.sender == minter, "This operation is only available for the minter");
         require(bids[tokenId].sold == false);
         
