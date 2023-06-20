@@ -36,6 +36,8 @@ const App = {
 
       this.getTotalBalance();
       this.showMinter();
+      
+      this.refreshBidPage2(document.getElementById("input_tokenId").value);
 
 
     } catch (error) {
@@ -52,14 +54,13 @@ const App = {
   getTotalBalance: async function () {
     const { getBalance } = this.subastasContract.methods;
     const balance = await getBalance().call();
-    console.log("Este es el balance del contrato:", balance);
+    console.log("Este es el balance del contrato:", balance,"Wei");
   },
 
   getConnectedAccount: async function () {
     const accounts = await ethereum.request({ method: 'eth_accounts' });
     if (this.account != accounts[0]) {
       this.account = accounts[0];
-      console.log("Account: ", this.account);
       this.setAccount(this.account);
     }
     else {
@@ -87,7 +88,7 @@ const App = {
   },
 
   generateImgAI: async function (promtStr) {
-    const token = '';
+    const token = 'api-61167e250ecd11ee97f20ebf43cd58a1';
     const url = 'https://creator.aitubo.ai/api/job/create';
     let jobId;
 
@@ -160,12 +161,16 @@ const App = {
     let idToken = parseInt(document.getElementById("input_idtoken").value);
     let price = document.getElementById("price").value;
     let priceWei = this.web3.utils.toWei(price, "ether");
+    let url = document.getElementById("testimage").src;
 
     const { createBid } = this.subastasContract.methods;
     let result = await createBid(idToken, priceWei).send({ from: this.account });
     console.log("Resultado transacción", result);
-    this.refreshBidPage(idToken);
+    //this.setTimer(idToken);
+    this.refreshBidPage2(idToken);
     document.getElementById("divCrearSubasta").style = "display:none";
+    
+    this.saveImageFromURL(url,"token"+idToken+".jpg");
     alert("Subasta creada");
   },
 
@@ -181,10 +186,15 @@ const App = {
       value: this.web3.utils.toWei(bidAmountinEther, "ether")
     });
     console.log("Resultado transacción", result);
-    this.refreshBidPage(tokenId);
+    this.refreshBidPage2(tokenId);
+    console.log("New Highest Bidder: ", await this.getHighestBidder(tokenId));
+    //this.showBid();
   },
 
   refreshBidPage: async function (idToken) {
+
+    document.getElementById("daytok_title").innerHTML = "DAYTOK"+idToken;
+
     document.getElementById("input_tokenId").value = idToken;
 
     const date = await this.getDeadLine(idToken);
@@ -193,7 +203,23 @@ const App = {
     const highestBid = await this.getHighestBid(idToken);
     document.getElementById("input_highest_bid").value = this.web3.utils.fromWei(highestBid, "ether") + " ETH";
 
-    document.getElementById("imagenPuja").src = "img/token" + idToken + ".jpg";
+    document.getElementById("imagenPuja").src = document.getElementById("testimage").src;
+
+    document.getElementById("input_bid").value = "";
+  },
+
+  refreshBidPage2: async function (idToken) {
+    document.getElementById("daytok_title").innerHTML = "DAYTOK"+idToken;
+
+    document.getElementById("input_tokenId").value = idToken;
+
+    const date = await this.getDeadLine(idToken);
+    document.getElementById("input_deadline").value = date;
+
+    const highestBid = await this.getHighestBid(idToken);
+    document.getElementById("input_highest_bid").value = this.web3.utils.fromWei(highestBid, "ether") + " ETH";
+
+    document.getElementById("imagenPuja").src = `img/token${idToken}.jpg`;
 
     document.getElementById("input_bid").value = "";
   },
@@ -243,9 +269,11 @@ const App = {
     console.log('Text uploaded:', result);
   },
 
-  setAccount: function (message) {
-    const status = document.getElementById("address_account");
-    status.innerHTML = message;
+  setAccount: function (newAccount) {
+    const accountEl = document.getElementById("address_account");
+    accountEl.innerHTML = newAccount;
+    this.account = newAccount.toString();
+    console.log("Connected Account: ", this.account);
   },
 
   showBid: async function (idToken) {
@@ -271,8 +299,18 @@ const App = {
       composed: true
     });
 
-    this.refreshBidPage(idToken);
+    this.refreshBidPage2(idToken);
 
+  },
+
+  finishAuction: async function(idToken) {
+    const { finishAuction } = this.subastasContract.methods;
+    let result = await finishAuction(idToken).send({ from: this.account });
+    console.log("Resultado transacción", result);
+
+    const { transferNFT } = this.daytoksContract.methods;
+    result = await transferNFT(this.account, await this.getHighestBidder(idToken) ,idToken).send({ from: this.account });
+    console.log("Resultado transacción", result);
   },
 
   /******************** DAYTOK OPERATIONS ******************/
@@ -281,7 +319,7 @@ const App = {
     let imagen = document.getElementById("hidden_address").value;
 
     const { safeMint } = this.daytoksContract.methods;
-    let result = await safeMint(this.account, idToken, imagen).send({ from: this.account });
+    let result = await safeMint(this.account, idToken, imagen.toString()).send({ from: this.account });
     console.log("Resultado transacción", result);
     //this.refreshBidPage(idToken);
     //document.getElementById("divCrearSubasta").style = "display:none";
@@ -293,6 +331,86 @@ const App = {
     const ownerAddress = await owner().call();
     console.log("Owner Address: ", ownerAddress);
   },
+
+  /********************  UTILS  *************************/
+  saveImageFromURL: function (url, fileName) {
+    // Create a new image element
+    const image = new Image();
+  
+    // Set the crossOrigin attribute to "Anonymous" to avoid CORS issues
+    image.crossOrigin = "Anonymous";
+  
+    // Create a canvas element
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+  
+    // Fetch the image data
+    fetch(url)
+      .then((response) => response.blob())
+      .then((blob) => {
+        // Convert the blob to an object URL
+        const imageUrl = URL.createObjectURL(blob);
+  
+        // Set the image source to the object URL
+        image.src = imageUrl;
+  
+        // Wait for the image to load
+        image.onload = function () {
+          // Set the canvas dimensions to match the image
+          canvas.width = image.width;
+          canvas.height = image.height;
+  
+          // Draw the image onto the canvas
+          context.drawImage(image, 0, 0);
+  
+          // Convert the canvas content to a data URL
+          const dataURL = canvas.toDataURL("image/jpeg");
+  
+          // Create a link element
+          const link = document.createElement("a");
+          link.href = dataURL;
+          link.download = fileName;
+  
+          // Programmatically trigger a click on the link to start the download
+          link.click();
+  
+          // Clean up the object URL
+          URL.revokeObjectURL(imageUrl);
+        };
+      })
+      .catch((error) => {
+        console.error("Error saving image:", error);
+      });
+      console.log("Imagen guardada");
+  },
+
+  setTimer: async function (idToken) {
+    try {
+      /* Timer para pujas oficiales
+      const currentTime = new Date().getTime();
+      const deadline = await this.getDeadLine(idToken);
+      const timeDifference = deadline - currentTime;
+      */
+      
+      /* Timer para el simulacro */
+      console.log("Timer iniciado");
+      const timeDifference = 5*1000;
+    
+      if (timeDifference > 0) {
+        setTimeout(async () => {
+          //this.finishAuction(idToken);
+          const ganador = await this.getHighestBidder(idToken);
+          alert("La puja ha finalizado\n El ganador ha sido: " + ganador)
+          console.log(`Gandador del DAYTOK${idToken}: ${ganador}`);;
+        }, timeDifference);
+      } else {
+        console.log('The deadline has already passed.');
+      }
+    } catch (error) {
+      console.error('Error retrieving the deadline:', error);
+    }
+  },
+  
 };
 
 window.App = App;

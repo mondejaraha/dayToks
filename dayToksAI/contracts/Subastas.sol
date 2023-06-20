@@ -61,6 +61,11 @@ contract Subastas{
         
         return true;
     }
+
+    function fininshAuction(uint tokenId) public view {
+        require(msg.sender == minter, "This operation is only available for the minter");
+        bids[tokenId].sold == true;
+    }
     
 
     // @notice Get the highest bidder

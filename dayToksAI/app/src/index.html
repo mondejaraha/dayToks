@@ -24,7 +24,7 @@
             <div class="nav-wrapper">
                 <div class="brand-logo">
                     <div class="container">
-                        <a onclick="App.mintNFT()"><img class="logo" src="img/daytokslogo.png" width="100" alt="Logo"></a>
+                        <a onclick="App.setTimer(10)"><img class="logo" src="img/daytokslogo.png" width="100" alt="Logo"></a>
                     </div>
                 </div>
                 <ul id="nav-mobile" class="right hide-on-med-and-down">
@@ -83,7 +83,7 @@
         <div class="col s12 m6 l3">
             <div class="hoverable card">
                 <div class="card-image">
-                    <img src="img/token3.webp">
+                    <img src="img/token3.jpg">
                 </div>
                 <div class="card-content grey-text text-darken-3">
                     <span class="card-title">DAYTOK3</span>
@@ -150,25 +150,26 @@
             <div class="col s12 l5">
                 <div class="card">
                     <div class="card-content">
-                        <span class="card-title texto-mayor cambria">DAYTOK1 15062023</span>
+                        <span id="daytok_title" class="card-title texto-mayor cambria"></span>
                         <article class="col s12">
                             DAYTOK TOKEN ID:
                             <div class="input-field inline negrita">
-                                <input id="input_tokenId" type="text" class="" disabled>
+                                <input id="input_tokenId" type="text" class="" value="1" disabled>
                                 <label for="input_tokenId"></label>
                             </div>
                         </article>
                         <article class="col s12">
                             La puja finaliza:
                             <div class="input-field inline negrita">
-                                <input id="input_deadline" type="text" class="" disabled>
+                                <input id="input_deadline" type="text" class="" value="Wed Jun 14 2023 12:18:05 GMT"
+                                    disabled>
                                 <label for="input_deadline"></label>
                             </div>
                         </article>
                         <article class="col s12">
                             Puja más alta:
                             <div class="input-field inline negrita">
-                                <input id="input_highest_bid" type="text" class="" disabled>
+                                <input id="input_highest_bid" type="text" class="" value="1 ETH" disabled>
                                 <label for="input_highest_bid" class=""></label>
                             </div>
                         </article>
@@ -192,7 +193,7 @@
 
     <!-------------------------------- PUBLICAR SUBASTA ------------------------------------->
     <section class="row" id="publicar_subasta">
-        
+
         <!-----Generar NFT------->
         <div class="col l5 s12 hoverable card deep-purple lighten-4">
             <div class="card-content padding12 grey-text text-darken-3">
@@ -208,7 +209,9 @@
                 <article class="col s12">
                     Prompt de la imagen que se va a generar:
                     <div class="input-field inline negrita">
-                        <textarea id="input_prompt" class="negrita" value="" rows="20" cols="20" placeholder="Escribe aquí la descripción del NFT" style="height: 200px; width: 300px;"></textarea>
+                        <textarea id="input_prompt" class="negrita" value="" rows="20" cols="20"
+                            placeholder="Escribe aquí la descripción del NFT"
+                            style="height: 200px; width: 300px;"></textarea>
                     </div>
                 </article>
                 <hr>
@@ -216,7 +219,7 @@
                     <i class="material-icons left">send</i>Generar NFT</a>
             </div>
         </div>
-       
+
         <!----Publicar NFT---->
         <div class="col s12 m6 l7">
             <div class="hoverable card deep-purple lighten-4" id="divCrearSubasta" style="display: block;">
@@ -225,7 +228,7 @@
                     <article class="col s12">
                         ID del DAYTOK que sale a subasta:
                         <div class="input-field inline negrita">
-                            <input id="input_idtoken" type="text" lenght="1" class="" value="" disabled>
+                            <input id="input_idtoken" type="text" lenght="1" class="" value="10" disabled>
                             <label for="input_idtoken"></label>
                         </div>
                     </article>
@@ -258,23 +261,23 @@
     </section>
     <!---------------------------------- Footer -------------------------------------->
     <footer class="page-footer nomargin">
-            <div class="row nomargin">
-                <div class="col l6 s12">
-                    <h5 class="purple-text ">The Todays Toks Project</h5>
-                    <p class="purple-text text-lighten-4">Realizado por Antonio Vicente Mondéjar Soler</p>
-                </div>
-                <div class="col l4 s12">
-                    <h5 class="purple-text text-lighten-4">Tutor</h5>
-                    <p class="purple-text">Alberto Ballesteros Rodríguez</p>
-                </div>
+        <div class="row nomargin">
+            <div class="col l6 s12">
+                <h5 class="purple-text ">The Todays Toks Project</h5>
+                <p class="purple-text text-lighten-4">Realizado por Antonio Vicente Mondéjar Soler</p>
             </div>
+            <div class="col l4 s12">
+                <h5 class="purple-text text-lighten-4">Tutor</h5>
+                <p class="purple-text">Alberto Ballesteros Rodríguez</p>
+            </div>
+        </div>
         </div>
         <div class="footer-copyright">
             <div class="container">
                 DayToks© Todos los derechos reservados - UOC - TFM Sistemas de Blockchain
                 <a class="grey-text text-lighten-4 right" href="#"></a>
             </div>
-        
+
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.6.1.slim.min.js"
@@ -286,7 +289,7 @@
         $(document).ready(function () {
             $('.tabs').tabs();
             $('.collapsible').collapsible();
-            $('.materialboxed').materialbox();  
+            $('.materialboxed').materialbox();
         });
     </script>
 </body>
